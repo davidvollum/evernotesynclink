@@ -11,28 +11,41 @@ import logging
 #Constants
 
 #Must be a legal directory with only pdfs and text files in it; must end in a "/"/Users/davidvollum/Documents/testing/
-directoryPath="/files/webdav/"
+directoryPath="/../"
 
 #where the actual python sctipt is stored
-infoPath = "/home/administrator/Documents/Evernote/"
+infoPath = os.path.dirname(unicode(__file__))
 
 #determines weather to use manifests to prevent duplicate uploads Normal = True
 useManifest=True
 
 #badFiles contains a list of special files used by the OS that should not be uploaded or messed with:
-badFiles=[".DS_Store"]
+badFiles=[""]
 
-#logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename=infoPath +'evernote.log',level=logging.INFO)
+#logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename=infoPath +'evernote.log',level=logging.INFO)
 #logging.debug('This message should go to the log file')
 #logging.info('So should this')
 #logging.warning('And this, too')
 
+args = sys.argv
+
+#put dev token here
+dev_token = ""
 
 
-dev_token = "S=s311:U=331bcad:E=16100618828:C=159a8b05ad8:P=1cd:A=en-devtoken:V=2:H=c086f429ae16e1c1532f3e2893e09fd1"
-client = EvernoteClient(token=dev_token, sandbox=False)
+
+
+if "-devToken" in args:
+    index=0
+    for arg in args:
+        if arg == "-devToken":
+            print "using alternate dev_token"
+            dev_token=args[index+1]
+        else:
+            index+=1
+client = EvernoteClient(token=dev_token, sandbox=True)
 userStore = client.get_user_store()
 user = userStore.getUser()
 
@@ -229,7 +242,7 @@ def readDirectory(path):
         logging.info("uploading: " + fileToUpload.fileName)
 
 
-args = sys.argv
+
 if "-noManifest" in args:
     print "Not using the Manifest: THIS IS NOT NORMAL"
     useManifest = False
@@ -242,10 +255,10 @@ if "-path:" in args:
     index=0
     for arg in args:
         if arg == "-path:":
-            args[index+1] = directoryPath
+            directoryPath=args[index+1]
         else:
             index+=1
-    readDirectory(directoryPath,directoryPath)
+    readDirectory(directoryPath)
 else:
     readDirectory(directoryPath)
 #getFilesToUpload(directoryPath, directoryPath)
